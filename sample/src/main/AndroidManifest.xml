@@ -22,7 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".samples.ImageSampleActivity" />
-        <activity android:name=".samples.http.OkHttpSampleActivity"/>
+        <activity android:name=".samples.http.OkHttpSampleActivity" />
+        <activity android:name=".samples.PopupWindowSampleActivity"></activity>
     </application>
 
 </manifest>

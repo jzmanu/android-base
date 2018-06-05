@@ -7,5 +7,6 @@ package com.manu.android_base;
  */
 
 public class Config {
+
     public static String SERVICEURL = "";
 }
