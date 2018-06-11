@@ -32,6 +32,7 @@ public class MPopupWindow{
     private int mOffsetX;
     private int mOffsetY;
     private int mGravity;
+    private boolean mTouchable;
 
     private MPopupWindow() {}
 
@@ -48,6 +49,7 @@ public class MPopupWindow{
         mPopupWindow.setOutsideTouchable(mOutsideTouchable);
         mPopupWindow.setOnDismissListener(mOnDismissListener);
         mPopupWindow.setAnimationStyle(mAnimationStyle);
+        mPopupWindow.setTouchable(mTouchable);
 
         int[] locations = new int[2];
         v.getLocationOnScreen(locations);
@@ -104,13 +106,6 @@ public class MPopupWindow{
                 int offsetY1 = (v.getHeight() - popupHeight) / 2;
                 mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY,left + v.getWidth() + mOffsetX,top + offsetY1 + mOffsetY);
                 break;
-
-            case FROM_TOP:
-//                mPopupWindow.showAtLocation(v,mGravity,mOffsetX,mOffsetY);
-                int a = v.getWidth();
-                int b = v.getHeight();
-                mPopupWindow.showAsDropDown(v,0,0);
-                break;
             case FROM_BOTTOM:
                 mPopupWindow.showAtLocation(v,mGravity,mOffsetX,mOffsetY);
                 break;
@@ -137,11 +132,13 @@ public class MPopupWindow{
         private int offsetX;
         private int offsetY;
         private int gravity;
+        private boolean touchable;
 
         public Builder(Context context) {
             this.context = context;
             this.popupWindow = new PopupWindow(context);
             this.outsideTouchable = true;
+            this.touchable = true;
             this.backgroundDrawable = new ColorDrawable(Color.TRANSPARENT);
             this.width  = WindowManager.LayoutParams.WRAP_CONTENT;
             this.height = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -196,13 +193,18 @@ public class MPopupWindow{
             return this;
         }
 
-        public Builder setOnDismissListener(PopupWindow.OnDismissListener onDismissListener) {
+        public Builder setOnDismissListener(OnDismissListener onDismissListener) {
             this.onDismissListener = onDismissListener;
             return this;
         }
 
         public Builder setAnimationStyle(int animationStyle) {
             this.animationStyle = animationStyle;
+            return this;
+        }
+
+        public Builder setTouchable(boolean touchable) {
+            this.touchable = touchable;
             return this;
         }
 
@@ -234,6 +236,7 @@ public class MPopupWindow{
             window.mBackgroundDrawable = this.backgroundDrawable;
             window.mOnDismissListener  = this.onDismissListener;
             window.mAnimationStyle = this.animationStyle;
+            window.mTouchable = this.touchable;
             window.mOffsetX = this.offsetX;
             window.mOffsetY = this.offsetY;
             window.mGravity = this.gravity;
@@ -257,7 +260,6 @@ public class MPopupWindow{
         LEFT_BOTTOM,
         LEFT_CENTER,
 
-        FROM_TOP,
         FROM_BOTTOM,
     }
 }

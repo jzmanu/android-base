@@ -2,6 +2,8 @@ package com.manu.core.http.callback;
 
 import com.google.gson.JsonSyntaxException;
 import com.manu.core.http.bean.ResultBean;
+import com.manu.core.http.exception.MException;
+
 import org.json.JSONException;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -11,6 +13,8 @@ import okhttp3.internal.connection.RouteException;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.manu.core.http.exception.ErrorCode.M_ERROR_CODE_NETWORK_ERROR;
 
 /**
  * Created by jzman
@@ -29,6 +33,8 @@ public abstract class MCallback<T extends ResultBean> implements Callback<T> {
                     onSuccess(response);
                 }
             }
+        }else{
+            onFailure(call,new MException(M_ERROR_CODE_NETWORK_ERROR,"网络连接出错"));
         }
     }
 

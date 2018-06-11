@@ -7,17 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
-
 import com.manu.android_base.R;
 import com.manu.baselibrary.widget.MPopupWindow;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -26,7 +21,6 @@ import static com.manu.baselibrary.widget.MPopupWindow.LocationType.BOTTOM_CENTE
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.BOTTOM_LEFT;
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.BOTTOM_RIGHT;
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.FROM_BOTTOM;
-import static com.manu.baselibrary.widget.MPopupWindow.LocationType.FROM_TOP;
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.LEFT_BOTTOM;
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.LEFT_CENTER;
 import static com.manu.baselibrary.widget.MPopupWindow.LocationType.LEFT_TOP;
@@ -75,9 +69,6 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
     Button btnRightCenter;
 
     View contentView;
-    View rootView;
-    private static final int VIEW_HEIGHT = 64;//px
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +76,6 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_popup_window_sample);
         ButterKnife.bind(this);
         contentView = LayoutInflater.from(this).inflate(R.layout.popup_window_layout, null);
-        rootView = LayoutInflater.from(this).inflate(R.layout.decor_view_item_layout,null);
-//        show();
     }
 
     @OnClick({R.id.btnTopLeft, R.id.btnTopRight, R.id.btnBottomLeft, R.id.btnBottomRight,
@@ -138,9 +127,6 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
             case R.id.btnFromBottom:
                 showPopupWindowAtBottom(FROM_BOTTOM);
                 break;
-            case R.id.btnFromTop:
-                showPopupWindowAtTop(FROM_TOP);
-                break;
 
             case R.id.btnTarget:
                 showOriginPopupWindow();
@@ -164,26 +150,6 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
         popupWindow.showPopupWindow(btnTarget, type);
     }
 
-    private void showPopupWindowAtTop(MPopupWindow.LocationType type) {
-        MPopupWindow popupWindow = new MPopupWindow
-                .Builder(this)
-                .setLayoutId(R.layout.popup_window_layout)
-                .setBackgroundDrawable(new ColorDrawable(Color.GRAY))
-                .setWidth(WindowManager.LayoutParams.MATCH_PARENT)
-//                .setAnimationStyle(R.style.PopupWindowTranslateThemeFromTop)
-                .setGravity(Gravity.TOP | Gravity.LEFT)
-                .setOnDismissListener(new PopupWindow.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-//                        Toast.makeText(PopupWindowSampleActivity.this, "onDismiss", Toast.LENGTH_SHORT).show();
-
-                    }
-                })
-                .build();
-        show();
-        popupWindow.showPopupWindow(rootView, type);
-    }
-
     private void showPopupWindowAtBottom(MPopupWindow.LocationType type) {
         MPopupWindow popupWindow = new MPopupWindow
                 .Builder(this)
@@ -202,7 +168,7 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
         popupWindow.showPopupWindow(btnTarget, type);
     }
 
-    private void  showOriginPopupWindow(){
+    private void showOriginPopupWindow() {
         contentView.findViewById(R.id.tvCamera).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -241,20 +207,4 @@ public class PopupWindowSampleActivity extends AppCompatActivity {
         window.setAnimationStyle(R.style.PopupWindowTranslateThemeFromBottom);
         window.showAtLocation(btnTarget, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
-
-    private void show(){
-        ViewGroup decorView = (ViewGroup) getWindow().getDecorView();
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, VIEW_HEIGHT);
-        params.gravity = Gravity.TOP;
-        params.setMargins(0,0,0,-VIEW_HEIGHT);
-        rootView.setLayoutParams(params);
-
-        TranslateAnimation translateAnimation = new TranslateAnimation(0,0,-VIEW_HEIGHT,0);
-        translateAnimation.setDuration(1500);
-        translateAnimation.setFillAfter(true);
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        decorView.addView(rootView,1);
-        rootView.startAnimation(translateAnimation);
-    }
-
 }

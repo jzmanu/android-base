@@ -17,6 +17,6 @@ public abstract class ResponseListener<T> {
 
     public abstract void onSuccess(T t);
 
-    public abstract void onFailure(Throwable e);
+    public abstract void onFailure(String msg);
 }
 

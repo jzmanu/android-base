@@ -13,12 +13,6 @@
         <item name="android:windowEnterAnimation">@anim/anim_popup_bottom_in</item>
         <item name="android:windowExitAnimation">@anim/anim_popup_bottom_out</item>
     </style>
-    <!--PopupWindow从顶部弹出-->
-    <style name="PopupWindowTranslateThemeFromTop">
-        <item name="android:windowEnterAnimation">@anim/anim_popup_top_in</item>
-        <item name="android:windowExitAnimation">@anim/anim_popup_top_out</item>
-    </style>
-
 
     <style name="PopupWindowScaleTheme">
         <item name="android:windowEnterAnimation">@anim/anim_popup_scale_in</item>
