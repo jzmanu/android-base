@@ -6,9 +6,8 @@ import com.manu.android_base.Config;
 import com.manu.baselibrary.http.HttpClient;
 import com.manu.baselibrary.http.util.OtherUtils;
 import com.manu.baselibrary.image.PicassoUtils;
-
+import com.manu.core.http.HttpManager;
 import okhttp3.logging.HttpLoggingInterceptor;
-
 
 /**
  * MyApplication.java
@@ -21,6 +20,8 @@ public class MyApplication extends Application{
     public void onCreate() {
         super.onCreate();
         initConfig();
+        HttpManager.init(getApplicationContext(),"http://gank.io/api/");
+
     }
 
     private void initConfig() {

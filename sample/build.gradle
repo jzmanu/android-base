@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.manu.baseframework"
+        applicationId "com.manu.base"
         minSdkVersion 22
         targetSdkVersion 26
         versionCode 1
@@ -15,7 +15,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug{ }
+        debug {}
     }
     buildToolsVersion '27.0.1'
     productFlavors {
@@ -32,4 +32,5 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation project(':baselibrary')
+    implementation project(':core')
 }

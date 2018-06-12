@@ -17,12 +17,29 @@ import retrofit2.Call;
 public class HttpManager {
 
     private static Context mContext;
+    private static String mBaseUrl;
+    private static HttpManager mHttpManager;
 
-    public static void init(Context context) {
+    public static void init(Context context,String baseUrl) {
         mContext = context;
+        mBaseUrl = baseUrl;
     }
 
-    private <T extends ResultBean> Call get(String path, Map<String,Object> params, ResponseListener<T> responseListener) {
-        return new RetrofitClient.Builder(mContext).build().get(path,params,responseListener);
+    public static HttpManager getInstance(){
+        if (mHttpManager == null){
+            synchronized (HttpManager.class){
+                if (mHttpManager == null){
+                    mHttpManager = new HttpManager();
+                }
+            }
+        }
+        return mHttpManager;
+    }
+
+    public  <T extends ResultBean> Call get(String path, Map<String,Object> params, ResponseListener<T> responseListener) {
+        return new RetrofitClient.Builder(mContext)
+                .setBaseUrl(mBaseUrl)
+                .build()
+                .get(path,params,responseListener);
     }
 }

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import okhttp3.internal.connection.RouteException;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Converter;
@@ -49,10 +50,8 @@ public class RetrofitClient {
 
     static class Builder {
         private Context context;
-
         private OkHttpClient.Builder okHttpBuilder;
         private Retrofit retrofit;
-
         private String userAgent;
         private String baseUrl;
         private int connectTimeout;
@@ -108,30 +107,36 @@ public class RetrofitClient {
             manager.mConnectTimeout = this.connectTimeout;
             manager.mWriteTimeout = this.writeTimeout;
             manager.mReadTimeout = this.readTimeout;
-            manager.mCommonApi = this.commonApi;
+
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             this.okHttpBuilder
                     .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                     .readTimeout(readTimeout, TimeUnit.SECONDS)
-                    .writeTimeout(writeTimeout, TimeUnit.SECONDS);
+                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                    .addInterceptor(loggingInterceptor);
 
             this.retrofit = new Retrofit.Builder()
                     .baseUrl(this.baseUrl)
                     //添加自定义的Gson解析工厂
+                    .client(this.okHttpBuilder.build())
                     .addConverterFactory(CustomGsonConverterFactory.create())
                     .build();
 
             this.commonApi = retrofit.create(CommonApi.class);
+            manager.mCommonApi = this.commonApi;
         }
     }
 
     /**
      * Get请求
      *
-     * @param context
      * @param path
      * @param params
-     * @param callback
+     * @param listener
+     * @param <T>
+     * @return
      */
     public <T extends ResultBean> Call get(String path, Map<String, Object> params, ResponseListener<T> listener) {
         Call<ResponseBody> call;
@@ -185,7 +190,6 @@ public class RetrofitClient {
                 } else if (t instanceof JsonSyntaxException) {
                     message = "JSON数据解析错误";
                 }
-
                 listener.onFailure(message);
             }
         });
