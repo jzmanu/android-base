@@ -9,6 +9,7 @@ import com.manu.core.http.bean.ResultBean;
 import com.manu.core.http.callback.MCallback;
 import com.manu.core.http.exception.ErrorCode;
 import com.manu.core.http.exception.MException;
+import com.manu.core.http.exception.MExceptionFactory;
 import com.manu.core.http.gson.CustomGsonConverterFactory;
 import com.manu.core.http.listener.ResponseListener;
 import com.manu.core.utils.Util;
@@ -153,7 +154,7 @@ public class RetrofitClient {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.raw().code() == 200) {
+                if (response.code() == 200) {
                     try {
                         String json = response.body().string();
                         Gson gson = new Gson();
@@ -168,31 +169,16 @@ public class RetrofitClient {
                         e.printStackTrace();
                     }
                 } else {
-                    onFailure(call, new MException(M_ERROR_CODE_NETWORK_ERROR, "网络连接出错"));
+                    onFailure(call, MExceptionFactory.createHttpCodeMException(response.code()));
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                String message = "请求失败";
-                if (t instanceof ConnectException) {
-                    message = "网络连接失败";
-                } else if (t instanceof SocketTimeoutException) {
-                    message = "网络连接超时";
-                } else if (t instanceof SocketException) {
-                    message = "网络连接错误";
-                } else if (t instanceof IOException) {
-                    message = "数据读写错误";
-                } else if (t instanceof RouteException) {
-                    message = "连接错误";
-                } else if (t instanceof JSONException) {
-                    message = "数据解析错误";
-                } else if (t instanceof JsonSyntaxException) {
-                    message = "JSON数据解析错误";
-                }
-                listener.onFailure(message);
+                listener.onFailure(MExceptionFactory.createMException(t).getErrorMessage());
             }
         });
     }
+
 
 }

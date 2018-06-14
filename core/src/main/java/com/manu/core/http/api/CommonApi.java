@@ -1,7 +1,5 @@
 package com.manu.core.http.api;
 
-import com.manu.core.http.bean.ResultBean;
-
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -16,7 +14,6 @@ import retrofit2.http.QueryMap;
  */
 
 public interface CommonApi {
-
     /**
      * 没有参数的Get请求
      * @param path

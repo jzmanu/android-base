@@ -51,10 +51,10 @@ public class RetrofitSampleActivity extends AppCompatActivity {
 
     /**
      * 获取某几日干货数据
-     * http://gank.io/api/history/content/2/1
+     * http://gank.io/api/history/content/3/1
      */
-    private void get(){
-        HttpManager.getInstance().get("history/content/2/1",null, new ResponseListener<ResultBean<Object>>() {
+    private void get() {
+        HttpManager.getInstance().get("history1/content/3/1", null, new ResponseListener<ResultBean<Object>>() {
 
             @Override
             public void onSuccess(ResultBean<Object> objectResultBean) {
@@ -65,6 +65,7 @@ public class RetrofitSampleActivity extends AppCompatActivity {
             public void onFailure(String msg) {
                 System.out.println(msg);
             }
+
         });
     }
 

@@ -1,12 +1,5 @@
 package com.manu.core.http.exception;
 
-import com.manu.core.http.RetrofitClient;
-import com.manu.core.http.callback.MCallback;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 /**
  * Created by jzman
  * Powered by 2018/6/8 0008.
@@ -14,8 +7,19 @@ import retrofit2.Response;
 
 public class MException extends RuntimeException {
 
-
     private int errorCode = -1;
+    private String errorMessage;
+
+
+    public MException(Throwable e) {
+        super(e);
+    }
+
+    public MException(int errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+        this.errorMessage = message;
+    }
 
     public int getErrorCode() {
         return errorCode;
@@ -25,17 +29,19 @@ public class MException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public MException(int errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     @Override
     public String toString() {
-        return super.toString()+",MException{" +
+        return "MException{" +
                 "errorCode=" + errorCode +
+                ", errorMessage='" + errorMessage + '\'' +
                 '}';
     }
-
-
 }
