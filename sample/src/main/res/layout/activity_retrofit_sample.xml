@@ -25,4 +25,25 @@
         android:text="Post Request"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnGet" />
+
+    <Button
+        android:id="@+id/btnDownLoadFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="DownLoadFile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnPost" />
+
+    <TextView
+        android:id="@+id/tvDownLoadPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnDownLoadFile"
+        app:layout_constraintStart_toEndOf="@+id/btnDownLoadFile"
+        app:layout_constraintTop_toTopOf="@+id/btnDownLoadFile" />
 </android.support.constraint.ConstraintLayout>

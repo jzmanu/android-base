@@ -1,53 +1,53 @@
 package com.manu.core.http;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.manu.core.http.api.CommonApi;
 import com.manu.core.http.bean.ResultBean;
-import com.manu.core.http.callback.MCallback;
+import com.manu.core.http.bean.UploadPart;
 import com.manu.core.http.exception.ErrorCode;
 import com.manu.core.http.exception.MException;
 import com.manu.core.http.exception.MExceptionFactory;
-import com.manu.core.http.gson.CustomGsonConverterFactory;
 import com.manu.core.http.listener.ResponseListener;
+import com.manu.core.http.progress.ProgressRequestBody;
 import com.manu.core.utils.Util;
 
-import org.json.JSONException;
-
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Interceptor;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
-import okhttp3.internal.connection.RouteException;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
-import static com.manu.core.http.exception.ErrorCode.M_ERROR_CODE_NETWORK_ERROR;
 
 /**
  * Created by jzman
  * Powered by 2018/6/5 0005.
  */
-
 public class RetrofitClient {
 
+    private static final String TAG = "RetrofitClient";
     private String mUserAgent;
     private String mBaseUrl;
     private int mConnectTimeout;
     private int mReadTimeout;
     private int mWriteTimeout;
     private CommonApi mCommonApi;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     static class Builder {
         private Context context;
@@ -59,13 +59,15 @@ public class RetrofitClient {
         private int readTimeout;
         private int writeTimeout;
         private CommonApi commonApi;
+        private Interceptor interceptor;
+        private List<Interceptor> interceptors;
 
         public Builder(Context context) {
             this.context = context;
             this.userAgent = "userAgent";
-            this.connectTimeout = 60;
-            this.writeTimeout = 60;
-            this.readTimeout = 60;
+            this.connectTimeout = 80;
+            this.writeTimeout = 80;
+            this.readTimeout = 80;
             this.okHttpBuilder = new OkHttpClient.Builder();
         }
 
@@ -94,6 +96,16 @@ public class RetrofitClient {
             return this;
         }
 
+        public Builder setInterceptor(Interceptor interceptor) {
+            this.interceptor = interceptor;
+            return this;
+        }
+
+        public Builder setInterceptors(List<Interceptor> interceptors) {
+            this.interceptors = interceptors;
+            return this;
+        }
+
         public RetrofitClient build() {
             RetrofitClient client = new RetrofitClient();
             setRetrofitClientConfig(client);
@@ -112,17 +124,24 @@ public class RetrofitClient {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+            //添加拦截器
             this.okHttpBuilder
                     .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                     .readTimeout(readTimeout, TimeUnit.SECONDS)
-                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                    .addInterceptor(loggingInterceptor);
+                    .writeTimeout(writeTimeout, TimeUnit.SECONDS);
 
+            if (interceptor != null) this.okHttpBuilder.addInterceptor(interceptor);
+            if (interceptors != null && interceptors.size() != 0) {
+                for (Interceptor interceptor : interceptors) {
+                    this.okHttpBuilder.addInterceptor(interceptor);
+                }
+            }
+
+//            this.okHttpBuilder.addInterceptor(loggingInterceptor);
             this.retrofit = new Retrofit.Builder()
                     .baseUrl(this.baseUrl)
-                    //添加自定义的Gson解析工厂
                     .client(this.okHttpBuilder.build())
-                    .addConverterFactory(CustomGsonConverterFactory.create())
+//                    .addConverterFactory(CustomGsonConverterFactory.create())
                     .build();
 
             this.commonApi = retrofit.create(CommonApi.class);
@@ -130,16 +149,7 @@ public class RetrofitClient {
         }
     }
 
-    /**
-     * Get请求
-     *
-     * @param path
-     * @param params
-     * @param listener
-     * @param <T>
-     * @return
-     */
-    public <T extends ResultBean> Call get(String path, Map<String, Object> params, ResponseListener<T> listener) {
+    <T extends ResultBean> Call get(String path, Map<String, Object> params, ResponseListener<T> listener) {
         Call<ResponseBody> call;
         if (params == null || params.size() == 0) {
             call = mCommonApi.get(path);
@@ -150,21 +160,72 @@ public class RetrofitClient {
         return call;
     }
 
+
+    <T extends ResultBean> Call get(String url, ResponseListener<T> listener) {
+        Call<ResponseBody> call = mCommonApi.getWithUrl(url);
+        performRequest(call, listener);
+        return call;
+    }
+
+    <T extends ResultBean> Call post(String path, Map<String, Object> params, ResponseListener<T> listener) {
+        Call<ResponseBody> call = mCommonApi.post(path, params);
+        performRequest(call, listener);
+        return call;
+    }
+
+    <T extends ResultBean> Call uploadFile(String path, Map<String, Object> params, ResponseListener<T> listener) {
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+
+        for (String key : params.keySet()) {
+            Object value = params.get(key) == null ? "" : params.get(key);
+            if (value instanceof UploadPart) {
+                UploadPart part = (UploadPart) value;
+                part.addToBuilder(key, builder);
+            } else {
+                builder.addFormDataPart(key, String.valueOf(value));
+            }
+        }
+
+        ProgressRequestBody progressRequestBody = new ProgressRequestBody(builder.build(), listener);
+        Call<ResponseBody> call = mCommonApi.uploadFile(path, progressRequestBody);
+        performRequest(call, listener);
+
+        return call;
+    }
+
+    <T extends ResultBean> Call downLoadFile(String url, ResponseListener<T> responseListener) {
+        Call<ResponseBody> call = mCommonApi.downLoadFile(url);
+        performRequest(call, responseListener, true);
+        return call;
+    }
+
     private <T extends ResultBean> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener) {
+        performRequest(call, listener, false);
+    }
+
+    private <T extends ResultBean> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener, final boolean isDownload) {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
                 if (response.code() == 200) {
                     try {
-                        String json = response.body().string();
-                        Gson gson = new Gson();
-                        T t = gson.fromJson(json, listener.getType());
-                        if (t.isError()) {
-                            throw new MException(t.getErrorCode(), t.getMessage());
+                        if (isDownload) {
+                            new Thread(new DownLoadThread(response, listener)).start();
                         } else {
+                            //这里直接认为请求的数据是完全符合要求的
+                            String json = response.body().string();
+                            Gson gson = new Gson();
+                            T t = gson.fromJson(json, listener.getType());
                             listener.onSuccess(t);
-                        }
 
+                            //根据服务端返回的不同数据格式进一步进行封装
+//                            if (t.isError()) {
+//                                throw new MException(t.getErrorCode(), t.getMessage());
+//                            } else {
+//                                listener.onSuccess(t);
+//                            }
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -180,5 +241,36 @@ public class RetrofitClient {
         });
     }
 
+    class DownLoadThread implements Runnable {
+        private Response<ResponseBody> response;
+        private String downloadFilePath;
+        private ResponseListener listener;
+        private File file;
 
+        public DownLoadThread(Response<ResponseBody> response, ResponseListener listener) {
+            this.response = response;
+            this.listener = listener;
+            this.downloadFilePath = listener.getDownLoadPath();
+            file = new File(downloadFilePath);
+        }
+
+        @Override
+        public void run() {
+            InputStream inputStream = null;
+            FileOutputStream outputStream = null;
+            try {
+                inputStream = response.body().byteStream();
+                outputStream = new FileOutputStream(file);
+                ByteStreams.copy(inputStream, outputStream);
+                listener.onSuccess(new ResultBean<File>());
+            } catch (IOException ex) {
+                listener.onFailure(MExceptionFactory.createMException(ex).getErrorMessage());
+            } finally {
+                okhttp3.internal.Util.closeQuietly(inputStream);
+                okhttp3.internal.Util.closeQuietly(outputStream);
+            }
+            listener.onDownLoadComplete();
+
+        }
+    }
 }

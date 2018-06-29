@@ -1,12 +1,23 @@
 package com.manu.core.http.api;
 
+import com.manu.core.http.progress.ProgressResponseBody;
+
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
+import retrofit2.http.Streaming;
+import retrofit2.http.Url;
 
 /**
  * Created by jzman
@@ -14,8 +25,9 @@ import retrofit2.http.QueryMap;
  */
 
 public interface CommonApi {
+
     /**
-     * 没有参数的Get请求
+     * Get请求
      * @param path
      * @return
      */
@@ -23,12 +35,49 @@ public interface CommonApi {
     Call<ResponseBody> get(@Path(value = "path") String path);
 
     /**
-     * 有参数的Get请求
+     * Get请求
      * @param path
      * @param params
      * @return
      */
     @GET("{path}")
     Call<ResponseBody>  get(@Path(value = "path") String path, @QueryMap Map<String, Object> params);
+
+    /**
+     * Get请求（完整Url）
+     * @param url
+     * @return
+     */
+    @GET
+    Call<ResponseBody> getWithUrl(@Url String url);
+
+    /**
+     * Post请求
+     * @param path
+     * @param params
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("{path}")
+    Call<ResponseBody> post(@Path(value = "path") String path, @FieldMap Map<String,Object> params);
+
+    /**
+     * 上传文件
+     * @param path
+     * @param params
+     * @return
+     */
+
+    @POST("{path}")
+    Call<ResponseBody> uploadFile(@Path(value = "path") String path, @Body RequestBody requestBody);
+
+    /**
+     * 下载文件
+     * @param url
+     * @return
+     */
+    @Streaming
+    @GET
+    Call<ResponseBody> downLoadFile(@Url String url);
 
 }

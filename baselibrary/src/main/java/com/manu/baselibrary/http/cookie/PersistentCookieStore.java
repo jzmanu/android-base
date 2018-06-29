@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class PersistentCookieStore {
         cookiePrefs = context.getSharedPreferences(COOKIE_PREFS, 0);
         cookies = new HashMap<>();
 
-        //将持久化的cookies缓存到内存中 即map cookies
+        //将持久化的cookies缓存到内存中 即 map cookies
         Map<String, ?> prefsMap = cookiePrefs.getAll();
         for (Map.Entry<String, ?> entry : prefsMap.entrySet()) {
             String[] cookieNames = TextUtils.split((String) entry.getValue(), ",");
