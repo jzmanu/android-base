@@ -4,9 +4,7 @@ import android.content.Context;
 
 import com.manu.core.http.bean.ResultBean;
 import com.manu.core.http.intercept.ProgressResponseIntercept;
-import com.manu.core.http.listener.ProgressResponseListener;
 import com.manu.core.http.listener.ResponseListener;
-import com.manu.core.http.progress.ProgressListener;
 
 import java.util.Map;
 
@@ -26,6 +24,7 @@ public class HttpManager {
     public static void init(Context context,String baseUrl) {
         mContext = context;
         mBaseUrl = baseUrl;
+        RetrofitClient.getOkHttpClient(context,baseUrl);
     }
 
     public static HttpManager getInstance(){
@@ -72,8 +71,6 @@ public class HttpManager {
                 .setBaseUrl(mBaseUrl)
                 .setInterceptor(new ProgressResponseIntercept(responseListener))
                 .build()
-                .downLoadFile(url, responseListener)
-//                .downLoadFile2(url, responseListener)
-                ;
+                .downLoadFile(url, responseListener);
     }
 }

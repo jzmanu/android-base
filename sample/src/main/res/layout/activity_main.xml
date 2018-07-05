@@ -41,11 +41,19 @@
         android:id="@+id/btnCore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="12dp"
         android:text="Core"
         app:layout_constraintStart_toStartOf="@+id/btnPopupWindow"
         app:layout_constraintTop_toBottomOf="@+id/btnPopupWindow" />
+
+    <Button
+        android:id="@+id/btnMvp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="MVP"
+        app:layout_constraintStart_toStartOf="@+id/btnCore"
+        app:layout_constraintTop_toBottomOf="@+id/btnCore" />
 
 
 </android.support.constraint.ConstraintLayout>

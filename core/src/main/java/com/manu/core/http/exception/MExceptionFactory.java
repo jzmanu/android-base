@@ -4,6 +4,7 @@ import android.net.ParseException;
 
 import com.google.gson.JsonParseException;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -23,6 +24,7 @@ public class MExceptionFactory {
     private static final String MESSAGE_PARSE_EXCEPTION = "解析出错";
     private static final String MESSAGE_UNKNOWN_HOST_EXCEPTION = "无法解析该域名";
     private static final String MESSAGE_UNKNOWN_EXCEPTION = "未知错误";
+    private static final String MESSAGE_DATA_WR_EXCEPTION = "数据读写错误";
 
     private static final String MESSAGE_REQUEST_EXPIRE = "登录过期";
     private static final String MESSAGE_NO_PERMISSION = "没有权限";
@@ -41,6 +43,7 @@ public class MExceptionFactory {
     private static final int CODE_PARSE_EXCEPTION = 0x4;
     private static final int CODE_UNKNOWN_HOST_EXCEPTION = 0x5;
     private static final int CODE_UNKNOWN_EXCEPTION = 0x6;
+    private static final int CODE_DATA_WR_EXCEPTION = 0x6;
 
     private static final int CODE_REQUEST_EXPIRE = 0x7;
     private static final int CODE_NO_PERMISSION = 0x8;
@@ -54,6 +57,7 @@ public class MExceptionFactory {
     private static final int CODE_SERVER_EXCEPTION = 0x16;
 
     public static MException createMException(Throwable e) {
+        System.out.println("createMException--->"+e.toString());
         MException mException = new MException(e);
         if (e instanceof HttpException) {
             //网络错误
@@ -79,7 +83,11 @@ public class MExceptionFactory {
             //自定义异常
             mException.setErrorCode(((MException) e).getErrorCode());
             mException.setErrorMessage(((MException) e).getErrorMessage());
-        } else {
+        } else if (e instanceof IOException){
+            //数据读写错误
+            mException.setErrorCode(CODE_DATA_WR_EXCEPTION);
+            mException.setErrorMessage(MESSAGE_DATA_WR_EXCEPTION);
+        }else{
             //未知错误
             mException.setErrorCode(CODE_UNKNOWN_EXCEPTION);
             mException.setErrorMessage(MESSAGE_UNKNOWN_EXCEPTION);

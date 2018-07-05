@@ -1,6 +1,7 @@
 package com.manu.core.http.progress;
 
-import com.manu.core.http.listener.ProgressResponseListener;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.IOException;
 
@@ -22,6 +23,8 @@ public class ProgressResponseBody extends ResponseBody {
     private final ProgressListener progressListener;
     //包装完成的BufferedSource
     private BufferedSource bufferedSource;
+
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * 构造函数，赋值
@@ -83,12 +86,17 @@ public class ProgressResponseBody extends ResponseBody {
 
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
-                long bytesRead = super.read(sink, byteCount);
+                final long bytesRead = super.read(sink, byteCount);
                 //增加当前读取的字节数，如果读取完成了bytesRead会返回-1
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 //回调，如果contentLength()不知道长度，会返回-1
                 if(progressListener != null){
-                    progressListener.onProgress(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressListener.onProgress(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                        }
+                    });
                 }
                 return bytesRead;
             }

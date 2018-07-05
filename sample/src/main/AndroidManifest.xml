@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS" />
 
     <application
         android:name=".app.MyApplication"
@@ -25,7 +25,10 @@
         <activity android:name=".samples.ImageSampleActivity" />
         <activity android:name=".samples.http.OkHttpSampleActivity" />
         <activity android:name=".samples.PopupWindowSampleActivity" />
-        <activity android:name=".samples.core.RetrofitSampleActivity"/>
+        <activity android:name=".samples.core.RetrofitSampleActivity" />
+        <activity android:name=".base.view.MvpActivity" />
+        <activity android:name="com.manu.core.base.BaseActivity" />
+        <activity android:name=".widget.LetterActivity"></activity>
     </application>
 
 </manifest>

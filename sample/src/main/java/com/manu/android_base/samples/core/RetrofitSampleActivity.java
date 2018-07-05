@@ -2,6 +2,7 @@ package com.manu.android_base.samples.core;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -170,7 +171,6 @@ public class RetrofitSampleActivity extends AppCompatActivity {
                 File.separator + "aa.apk");
         String url = "http://oowljgony.bkt.clouddn.com/baidu_search.apk";
 
-
         HttpManager.getInstance().downLoadFile(url, new ResponseListener<ResultBean<File>>() {
             @Override
             public void onSuccess(ResultBean<File> resultBean) {
@@ -193,13 +193,13 @@ public class RetrofitSampleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onProgress(long bytesRead, long contentLength, boolean done) {
-                System.out.println("bytesRead--->" + bytesRead+"--->contentLength--->"+contentLength+"--->done--->"+done);
-                System.out.println("当前线程："+Thread.currentThread());
-                tvDownLoadPercent.setText(bytesRead+"");
+            public void onProgress(final long bytesRead, long contentLength, boolean done) {
+                System.out.println("bytesRead--->" + bytesRead + "--->contentLength--->" + contentLength + "--->done--->" + done);
+                System.out.println("当前线程：" + Thread.currentThread());
+                System.out.println("主线程：" + Looper.getMainLooper().getThread());
+                float percent = (bytesRead * 1.0f) / (contentLength * 1.0f) * 100;
+                tvDownLoadPercent.setText((int)percent + "%");
             }
         });
     }
-
-
 }

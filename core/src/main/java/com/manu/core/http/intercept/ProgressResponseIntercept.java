@@ -1,6 +1,5 @@
 package com.manu.core.http.intercept;
 
-import com.manu.core.http.listener.ProgressResponseListener;
 import com.manu.core.http.progress.ProgressListener;
 import com.manu.core.http.progress.ProgressResponseBody;
 
