@@ -28,7 +28,8 @@
         <activity android:name=".samples.core.RetrofitSampleActivity" />
         <activity android:name=".base.view.MvpActivity" />
         <activity android:name="com.manu.core.base.BaseActivity" />
-        <activity android:name=".widget.LetterActivity"></activity>
+        <activity android:name=".widget.LetterActivity" />
+        <activity android:name=".widget.WheelActivity"></activity>
     </application>
 
 </manifest>
