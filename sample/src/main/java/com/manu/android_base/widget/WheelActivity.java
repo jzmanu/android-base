@@ -2,6 +2,11 @@ package com.manu.android_base.widget;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.manu.android_base.R;
@@ -10,14 +15,16 @@ import com.manu.android_base.wheelview.adapter.ArrayWheelAdapter;
 import com.manu.android_base.wheelview.widget.WheelView;
 import com.manu.core.utils.Util;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class WheelActivity extends AppCompatActivity{
+public class WheelActivity extends AppCompatActivity implements
+        WheelView.OnWheelItemClickListener<String> {
 
     @BindView(R.id.wvCity)
     WheelView wvCity;
@@ -25,9 +32,15 @@ public class WheelActivity extends AppCompatActivity{
     WheelView wvCounty;
     @BindView(R.id.wvTown)
     WheelView wvTown;
+    @BindView(R.id.btnConfirm)
+    Button btnConfirm;
+    @BindView(R.id.tvAddress)
+    TextView tvAddress;
 
     private DistractBean bean;
     private List<String> mCityList;
+    private HashMap<String, List<String>> mCountyMap;
+    private HashMap<String, List<String>> mTownMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,78 +52,90 @@ public class WheelActivity extends AppCompatActivity{
     }
 
     private void initData() {
-        String json = Util.getOriginalFundData(this,"area.json");
+        String json = Util.getOriginalFundData(this, "area.json");
         Gson gson = new Gson();
         bean = gson.fromJson(json, DistractBean.class);
-//        initCountyMap();
+
+        mCityList = new ArrayList<>();
+        mCountyMap = new HashMap<>();
+        mTownMap = new HashMap<>();
+
+        for (int i = 0; i < bean.getChildren().size(); i++) {
+            String cityName = bean.getChildren().get(i).getName();
+            mCityList.add(cityName);
+            List<String> countyList = new ArrayList<>();
+            for (int j = 0; j < bean.getChildren().get(i).getChildren().size(); j++) {
+                countyList.add(bean.getChildren().get(i).getChildren().get(j).getName());
+                String countyName = bean.getChildren().get(i).getChildren().get(j).getName();
+                List<String> townList = new ArrayList<>();
+                int townCount = bean.getChildren().get(i).getChildren().get(j).getChildren().size();
+                if (townCount == 0) {
+                    townList.add("无");
+                } else {
+                    for (int m = 0; m < bean.getChildren().get(i).getChildren().get(j).getChildren().size(); m++) {
+                        townList.add(bean.getChildren().get(i).getChildren().get(j).getChildren().get(m).getName());
+                    }
+                }
+                System.out.println(countyName + "--->" + townList);
+                mTownMap.put(countyName, townList);
+            }
+            System.out.println(cityName + "--city->" + countyList);
+            mCountyMap.put(cityName, countyList);
+        }
+
+        wvCity.setOnWheelItemClickListener(this);
+        wvCounty.setOnWheelItemClickListener(this);
+        wvTown.setOnWheelItemClickListener(this);
     }
 
     private void initWheel() {
 
         wvCity.setWheelAdapter(new ArrayWheelAdapter(this));
         wvCity.setSkin(WheelView.Skin.Holo);
-        wvCity.setWheelData(createMainDatas());
+        wvCity.setWheelData(mCityList);
 
         wvCounty.setWheelAdapter(new ArrayWheelAdapter(this));
         wvCounty.setSkin(WheelView.Skin.Holo);
-        //获得当前已经选择的城市
-//        String currentCity = bean.getChildren().get(wvCity.getSelection()).getName();
-        wvCounty.setWheelData(createSubDatas().get(createMainDatas().get(wvCity.getSelection())));
-//        wvCounty.setWheelData(bean.getChildren().get(wvCity.getSelection()).getChildren());
+        wvCounty.setWheelData(mCountyMap.get(mCityList.get(wvCity.getSelection())));
         wvCity.join(wvCounty);
-        wvCity.joinDatas(createSubDatas());
-//
+        wvCity.joinDatas(mCountyMap);
+
         wvTown.setWheelAdapter(new ArrayWheelAdapter(this));
         wvTown.setSkin(WheelView.Skin.Holo);
-        //获得当前已经选择的城市
-        String currentCity = createMainDatas().get(wvCity.getSelection());
-        String currentCounty = createSubDatas().get(currentCity).get(wvCounty.getSelection());
-        wvTown.setWheelData(createChildDatas().get(currentCounty));
+        String currentCity = mCityList.get(wvCity.getSelection());
+        String currentCounty = mCountyMap.get(currentCity).get(wvCounty.getSelection());
+        wvTown.setWheelData(mTownMap.get(currentCounty));
         wvCounty.join(wvTown);
-        wvCounty.joinDatas(createChildDatas());
+        wvCounty.joinDatas(mTownMap);
     }
 
-    private List<String> createMainDatas() {
-        String[] strings = {"黑龙江", "吉林", "辽宁"};
-        return Arrays.asList(strings);
-    }
-
-    private HashMap<String, List<String>> createSubDatas() {
-        HashMap<String, List<String>> map = new HashMap<>();
-        String[] strings = {"黑龙江", "吉林", "辽宁"};
-        String[] s1 = {"哈尔滨", "齐齐哈尔", "大庆"};
-        String[] s2 = {"长春", "吉林"};
-        String[] s3 = {"沈阳", "大连", "鞍山", "抚顺"};
-        String[][] ss = {s1, s2, s3};
-        for (int i = 0; i < strings.length; i++) {
-            map.put(strings[i], Arrays.asList(ss[i]));
+    @Override
+    public void onItemClick(AdapterView<?> parent, int position, String s) {
+        System.out.println("---------------------->" + s);
+        switch (parent.getId()) {
+            case R.id.wvCity:
+                Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.wvCounty:
+                Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.wvTown:
+                Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+                break;
         }
-        return map;
     }
 
-//    private void initCountyMap(){
-//        mCountyMap = new HashMap<>();
-//        for (int i=0; i<bean.getChildren().size(); i++){
-//            mCountyMap.put(bean.getChildren().get(i).getName(),bean.getChildren().get(i).getChildren());
-//        }
-//    }
-
-    private HashMap<String, List<String>> createChildDatas() {
-        HashMap<String, List<String>> map = new HashMap<>();
-        String[] strings = {"哈尔滨", "齐齐哈尔", "大庆", "长春", "吉林", "沈阳", "大连", "鞍山", "抚顺"};
-        String[] s1 = {"道里区", "道外区", "南岗区", "香坊区"};
-        String[] s2 = {"龙沙区", "建华区", "铁锋区"};
-        String[] s3 = {"红岗区", "大同区"};
-        String[] s11 = {"南关区", "朝阳区"};
-        String[] s12 = {"龙潭区"};
-        String[] s21 = {"和平区", "皇姑区", "大东区", "铁西区"};
-        String[] s22 = {"中山区", "金州区"};
-        String[] s23 = {"铁东区", "铁西区"};
-        String[] s24 = {"新抚区", "望花区", "顺城区"};
-        String[][] ss = {s1, s2, s3, s11, s12, s21, s22, s23, s24};
-        for (int i = 0; i < strings.length; i++) {
-            map.put(strings[i], Arrays.asList(ss[i]));
+    @OnClick({R.id.btnConfirm, R.id.tvAddress})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btnConfirm:
+                String address = (String)wvCity.getSelectionItem()
+                        +wvCounty.getSelectionItem()
+                        +wvTown.getSelectionItem();
+                tvAddress.setText(address);
+                break;
+            case R.id.tvAddress:
+                break;
         }
-        return map;
     }
 }

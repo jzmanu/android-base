@@ -95,8 +95,7 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
                 }
                 if (mJoinWheelView != null) {
                     if (!mJoinMap.isEmpty()) {
-                        mJoinWheelView.resetDataFromTop(mJoinMap.get(mList.get (getCurrentPosition()))
-                        );
+                        mJoinWheelView.resetDataFromTop(mJoinMap.get(mList.get (getCurrentPosition())));
                     } else {
                         throw new WheelViewException("JoinList is error.");
                     }
@@ -109,7 +108,7 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mOnWheelItemClickListener != null) {
-                mOnWheelItemClickListener.onItemClick(getCurrentPosition(), getSelectionItem());
+                mOnWheelItemClickListener.onItemClick(parent,getCurrentPosition(), getSelectionItem());
             }
         }
     };
@@ -671,7 +670,7 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
     }
 
     public interface OnWheelItemClickListener<T> {
-        void onItemClick(int position, T t);
+        void onItemClick(AdapterView<?> parent,int position, T t);
     }
 
     public static class WheelViewStyle {
