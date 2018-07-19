@@ -49,4 +49,18 @@
         android:text="资源文件"
         app:layout_constraintStart_toEndOf="@+id/btnLocal"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.manu.baselibrary.widget.DoubleClickTextView
+        android:id="@+id/tvClickMe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="点击我"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
