@@ -6,6 +6,15 @@ import android.os.Looper;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.$Gson$Types;
+import com.google.gson.reflect.TypeToken;
 import com.manu.core.http.api.CommonApi;
 import com.manu.core.http.bean.ResultBean;
 import com.manu.core.http.bean.UploadPart;
@@ -14,20 +23,28 @@ import com.manu.core.http.exception.MException;
 import com.manu.core.http.exception.MExceptionFactory;
 import com.manu.core.http.listener.ResponseListener;
 import com.manu.core.http.progress.ProgressRequestBody;
+import com.manu.core.utils.LogUtil;
 import com.manu.core.utils.Util;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -48,7 +65,7 @@ public class RetrofitClient {
     public RetrofitClient() {
     }
 
-    public static OkHttpClient getOkHttpClient(Context context,String baseUrl) {
+    public static OkHttpClient getOkHttpClient(Context context, String baseUrl) {
         return new Builder(context)
                 .setBaseUrl(baseUrl)
                 .build().getOkHttpClient();
@@ -58,7 +75,7 @@ public class RetrofitClient {
         return mOkHttpClient;
     }
 
-    <T extends ResultBean> Call get(String path, Map<String, Object> params, ResponseListener<T> listener) {
+    <T> Call get(String path, Map<String, Object> params, ResponseListener<T> listener) {
         Call<ResponseBody> call;
         if (params == null || params.size() == 0) {
             call = mCommonApi.get(path);
@@ -69,19 +86,19 @@ public class RetrofitClient {
         return call;
     }
 
-    <T extends ResultBean> Call get(String url, ResponseListener<T> listener) {
+    <T> Call get(String url, ResponseListener<T> listener) {
         Call<ResponseBody> call = mCommonApi.getWithUrl(url);
         performRequest(call, listener);
         return call;
     }
 
-    <T extends ResultBean> Call post(String path, Map<String, Object> params, ResponseListener<T> listener) {
+    <T> Call post(String path, Map<String, Object> params, ResponseListener<T> listener) {
         Call<ResponseBody> call = mCommonApi.post(path, params);
         performRequest(call, listener);
         return call;
     }
 
-    <T extends ResultBean> Call uploadFile(String path, Map<String, Object> params, ResponseListener<T> listener) {
+    <T> Call uploadFile(String path, Map<String, Object> params, ResponseListener<T> listener) {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
@@ -101,17 +118,37 @@ public class RetrofitClient {
         return call;
     }
 
-    <T extends ResultBean> Call downLoadFile(String url, ResponseListener<T> responseListener) {
+    <T> Call upload(String path, Map<String, Object> params, List<File> fileList, ResponseListener<T> listener) {
+        Call<ResponseBody> call = null;
+        if (fileList != null) {
+            if (fileList.size() > 0) {
+                MultipartBody.Part[] part = new MultipartBody.Part[fileList.size()];
+                for (int i = 0; i < fileList.size(); i++) {
+                    RequestBody requestBody = RequestBody.create(MultipartBody.FORM, fileList.get(i));
+                    ProgressRequestBody progressRequestBody = new ProgressRequestBody(requestBody, listener);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileList.get(i).getName(), progressRequestBody);
+                    part[i] = body;
+                }
+                call = mCommonApi.upload(path, params, part);
+            }
+        }else{
+            call = mCommonApi.post(path,params);
+        }
+        performRequest(call,listener);
+        return  call;
+    }
+
+    <T> Call downLoadFile(String url, ResponseListener<T> responseListener) {
         Call<ResponseBody> call = mCommonApi.downLoadFile(url);
         performRequest(call, responseListener, true);
         return call;
     }
 
-    private <T extends ResultBean> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener) {
+    private <T> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener) {
         performRequest(call, listener, false);
     }
 
-    private <T extends ResultBean> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener, final boolean isDownload) {
+    private <T> void performRequest(Call<ResponseBody> call, final ResponseListener<T> listener, final boolean isDownload) {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
@@ -120,21 +157,34 @@ public class RetrofitClient {
                         if (isDownload) {
                             new Thread(new DownLoadThread(response, listener)).start();
                         } else {
-                            //这里直接认为请求的数据是完全符合要求的
-                            String json = response.body().string();
                             Gson gson = new Gson();
-                            T t = gson.fromJson(json, listener.getType());
-                            callSuccess(t, listener);
+                            String json = response.body().string();
+                            if (listener.getType() == String.class){
+                                callSuccess(json,listener);
+                                return;
+                            }
+                            JsonObject resultBean = new JsonParser().parse(json).getAsJsonObject();
+                            ResultBean result = gson.fromJson(resultBean, ResultBean.class);
+                            JsonElement jsonElement = resultBean.get("results");
+                            String data;
+                            if (jsonElement.isJsonArray()) {
+                                data = resultBean.getAsJsonArray("results").toString();
+                            } else if (jsonElement.isJsonObject()) {
+                                data = resultBean.getAsJsonObject("results").toString();
+                            } else {
+                                onFailure(call, MExceptionFactory.createMException(new MException(100, "please return JsonObject or JsonArray...")));
+                                return;
+                            }
 
-//                            根据服务端返回的不同数据格式进一步进行封装
-//                            if (t.isError()) {
-//                                throw new MException(t.getErrorCode(), t.getMessage());
-//                            } else {
-//                                listener.onSuccess(t);
-//                            }
+                            T t = gson.fromJson(data, listener.getType());
+                            if (result.isError()) {
+                                onFailure(call, MExceptionFactory.createMException(new MException(result.getErrorCode(), result.getMessage())));
+                            } else {
+                                callSuccess(t, listener);
+                            }
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (JsonParseException | IOException e) {
+                        onFailure(call, MExceptionFactory.createMException(e));
                     }
                 } else {
                     onFailure(call, MExceptionFactory.createHttpCodeMException(response.code()));
@@ -146,6 +196,16 @@ public class RetrofitClient {
                 callFailure(t, listener);
             }
         });
+    }
+
+    private Type getType(ResultBean listener) {
+        try {
+            ParameterizedType parameterizedType = (ParameterizedType) listener.getClass().getGenericSuperclass();
+            Type type = parameterizedType.getActualTypeArguments()[0];
+            return type;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void callSuccess(final Object obj, final ResponseListener listener) {
@@ -297,7 +357,7 @@ public class RetrofitClient {
                 }
             }
 
-            this.okHttpBuilder.addInterceptor(loggingInterceptor);
+//            this.okHttpBuilder.addInterceptor(loggingInterceptor);
             this.retrofit = new Retrofit.Builder()
                     .baseUrl(this.baseUrl)
                     .client(this.okHttpBuilder.build())

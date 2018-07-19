@@ -9,12 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.manu.android_base.R;
+import com.manu.android_base.samples.bean.BlogItemBean;
 import com.manu.core.http.HttpManager;
 import com.manu.core.http.bean.ResultBean;
 import com.manu.core.http.listener.ResponseListener;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -37,6 +39,8 @@ public class RetrofitSampleActivity extends AppCompatActivity {
     Button btnDownLoadFile;
     @BindView(R.id.tvDownLoadPercent)
     TextView tvDownLoadPercent;
+    @BindView(R.id.tvData)
+    TextView tvData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +65,18 @@ public class RetrofitSampleActivity extends AppCompatActivity {
         }
     }
 
-
     /**
      * 获取某几日干货数据
      * http://gank.io/api/history/content/3/1
      */
     private void getGankData() {
 
-        HttpManager.getInstance().get("history/content/3/1", null, new ResponseListener<ResultBean<Object>>() {
+        HttpManager.getInstance().get("history/content/3/1", null, new ResponseListener<String>() {
 
             @Override
-            public void onSuccess(ResultBean<Object> objectResultBean) {
-                System.out.println(objectResultBean);
+            public void onSuccess(String objectResultBean) {
+                System.out.println("------>"+objectResultBean);
+                tvData.setText(objectResultBean);
             }
 
             @Override
@@ -146,11 +150,11 @@ public class RetrofitSampleActivity extends AppCompatActivity {
         });
     }
 
-    private void postFile() {
+    private void upload() {
 
-        HttpManager.getInstance().uploadFile(null, null, new ResponseListener<ResultBean<Object>>() {
+        HttpManager.getInstance().upload(null, null, null, new ResponseListener<Object>() {
             @Override
-            public void onSuccess(ResultBean<Object> objectResultBean) {
+            public void onSuccess(Object o) {
 
             }
 
@@ -158,15 +162,15 @@ public class RetrofitSampleActivity extends AppCompatActivity {
             public void onFailure(String msg) {
 
             }
-//
-//            @Override
-//            public void onProgress(long bytesRead, long contentLength, boolean isDownload) {
-//
-//            }
+
+            @Override
+            public void onProgress(long bytesRead, long contentLength, boolean done) {
+
+            }
         });
     }
 
-    private void downLoadFile() {
+    private void downLoadFile(){
         final File apkFile = new File(Environment.getExternalStorageDirectory().getPath() +
                 File.separator + "aa.apk");
         String url = "http://oowljgony.bkt.clouddn.com/baidu_search.apk";
@@ -198,7 +202,7 @@ public class RetrofitSampleActivity extends AppCompatActivity {
                 System.out.println("当前线程：" + Thread.currentThread());
                 System.out.println("主线程：" + Looper.getMainLooper().getThread());
                 float percent = (bytesRead * 1.0f) / (contentLength * 1.0f) * 100;
-                tvDownLoadPercent.setText((int)percent + "%");
+                tvDownLoadPercent.setText((int) percent + "%");
             }
         });
     }

@@ -40,7 +40,6 @@ public class OkHttpSampleActivity extends AppCompatActivity implements
 
     OkHttpSamplePresenter samplePresenter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +59,7 @@ public class OkHttpSampleActivity extends AppCompatActivity implements
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btnGet:
-                samplePresenter.get("http://gank.io/api/data/Android/10/1");
+                samplePresenter.get("http://gank.io/api/data/Android/3/1");
                 break;
             case R.id.btnPost:
                 Map<String,String> params = new HashMap<>();
