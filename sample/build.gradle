@@ -17,7 +17,7 @@ android {
         }
         debug {}
     }
-    buildToolsVersion '27.0.1'
+    buildToolsVersion '27.0.0'
     productFlavors {
     }
 }
@@ -34,4 +34,5 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation project(':baselibrary')
     implementation project(':core')
+    compile 'com.android.support:recyclerview-v7:25.1.0'
 }
