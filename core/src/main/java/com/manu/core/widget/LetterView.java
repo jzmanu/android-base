@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.manu.core.utils.DensityUtil;
+
 
 /**
  * Powered by jzman.
@@ -26,7 +28,7 @@ public class LetterView extends View {
     private Paint mLetterBackgroundPaint;
     private int mWidth;
     private int mItemHeight;
-    private int mTouchIndex;
+    private int mTouchIndex = -1;
 
     public LetterView(Context context) {
         super(context);
@@ -72,15 +74,15 @@ public class LetterView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
+        //绘制指示器
         for (int i = 1; i < letters.length + 1; i++) {
             if (mTouchIndex == i) {
-                canvas.drawCircle(0.5f * mWidth, mTouchIndex * mItemHeight - 0.5f * mItemHeight, 0.5f * mItemHeight, mLetterBackgroundPaint);
+                canvas.drawCircle(0.5f * mWidth, mTouchIndex * (mItemHeight + mItemHeight / 20) - 0.5f * (mItemHeight + mItemHeight / 20), 0.5f * (mItemHeight + mItemHeight / 20), mLetterBackgroundPaint);
             }
         }
-
+        //绘制字母
         for (int i = 1; i < letters.length + 1; i++) {
-            canvas.drawText(letters[i - 1], 0, mItemHeight * i - 0.5f * mItemHeight, mLetterPaint);
+            canvas.drawText(letters[i - 1],  mItemHeight, (mItemHeight + mItemHeight / 20) * i - 0.5f * (mItemHeight + mItemHeight / 20), mLetterPaint);
         }
     }
 
@@ -91,6 +93,7 @@ public class LetterView extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_MOVE:
                 int y = (int) event.getY();
+                System.out.println("--y->"+y+"-y-dp-->"+ DensityUtil.px2dp(getContext(),y));
                 int index = y / mItemHeight;
                 if (index != mTouchIndex && index < 27 && index > 0) {
                     mTouchIndex = index;
@@ -99,10 +102,8 @@ public class LetterView extends View {
                 if (mOnLetterChangeListener != null && mTouchIndex > 0) {
                     mOnLetterChangeListener.onLetterListener(mTouchIndex);
                 }
-
                 invalidate();
                 break;
-
         }
         return true;
     }
