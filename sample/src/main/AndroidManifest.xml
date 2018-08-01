@@ -27,9 +27,10 @@
         <activity android:name=".samples.PopupWindowSampleActivity" />
         <activity android:name=".samples.core.RetrofitSampleActivity" />
         <activity android:name=".base.view.MvpActivity" />
-        <activity android:name="com.manu.core.base.BaseActivity" />
         <activity android:name=".widget.LetterActivity" />
-        <activity android:name=".widget.WheelActivity"></activity>
+        <activity android:name=".widget.WheelActivity" />
+        <activity android:name=".samples.list.RecyclerViewSampleActivity" />
+        <activity android:name=".samples.list.ExpandableListViewActivity"></activity>
     </application>
 
 </manifest>
