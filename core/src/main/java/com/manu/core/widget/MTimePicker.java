@@ -42,11 +42,11 @@ public class MTimePicker extends PopupWindow {
         showAtLocation(v, Gravity.CENTER | Gravity.BOTTOM, 0, 0);
     }
 
-    private void configData(){
+    private void configData() {
 
     }
 
-    public static class Builder{
+    public static class Builder {
         private int yearCount;
 
         public Builder setYearCount(int yearCount) {

@@ -5,6 +5,8 @@ import android.content.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by jzman
@@ -58,4 +60,31 @@ public class Util {
         }
         return s;
     }
+
+    /**
+     * 利用正则表达式判断字符串是否是数字
+     * @param str
+     * @return
+     */
+    public static boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        if( !isNum.matches() ){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断字符串是否是字母
+     * @param str
+     * @return
+     */
+    public static boolean isLetter(String str) {
+        String regex=".*[a-zA-Z]+.*";
+        Matcher m=Pattern.compile(regex).matcher(str);
+        return m.matches();
+    }
+
+
 }

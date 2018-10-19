@@ -12,11 +12,7 @@ import com.manu.android_base.samples.PopupWindowSampleActivity;
 import com.manu.android_base.samples.core.RetrofitSampleActivity;
 import com.manu.android_base.samples.http.OkHttpSampleActivity;
 
-import com.manu.android_base.widget.LetterActivity;
-
-import com.manu.android_base.samples.list.ExpandableListViewActivity;
-
-import com.manu.android_base.widget.WheelActivity;
+import com.manu.android_base.widget.letter.LetterActivity;
 
 import java.text.MessageFormat;
 
@@ -73,12 +69,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btnMvp:
 //                startActivity(new Intent(this, MvpActivity.class));
 
-//                startActivity(new Intent(this, LetterActivity.class));
+                startActivity(new Intent(this, LetterActivity.class));
 //                startActivity(new Intent(this, WheelActivity.class));
 
 //                startActivity(new Intent(this, LetterActivity.class));
 //                startActivity(new Intent(this, WheelActivity.class));
-                startActivity(new Intent(this, ExpandableListViewActivity.class));
+//                startActivity(new Intent(this, ExpandableListViewActivity.class));
 
                 break;
         }

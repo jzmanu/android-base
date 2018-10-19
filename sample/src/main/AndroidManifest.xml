@@ -27,7 +27,7 @@
         <activity android:name=".samples.PopupWindowSampleActivity" />
         <activity android:name=".samples.core.RetrofitSampleActivity" />
         <activity android:name=".base.view.MvpActivity" />
-        <activity android:name=".widget.LetterActivity" />
+        <activity android:name=".widget.letter.LetterActivity" />
         <activity android:name=".widget.WheelActivity" />
         <activity android:name=".samples.list.RecyclerViewSampleActivity" />
         <activity android:name=".samples.list.ExpandableListViewActivity"></activity>

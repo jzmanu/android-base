@@ -17,7 +17,7 @@ android {
         }
         debug {}
     }
-    buildToolsVersion '27.0.1'
+    buildToolsVersion '27.0.3'
 
 
     productFlavors {
@@ -37,4 +37,5 @@ dependencies {
     implementation project(':baselibrary')
     implementation project(':core')
     compile 'com.android.support:recyclerview-v7:25.1.0'
+    implementation files('libs/pinyin4j-2.5.0.jar')
 }
