@@ -1,4 +1,4 @@
-package com.manu.core.image;
+package com.manu.core.image.picasso;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

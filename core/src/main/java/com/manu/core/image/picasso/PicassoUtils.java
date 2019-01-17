@@ -1,4 +1,4 @@
-package com.manu.core.image;
+package com.manu.core.image.picasso;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import com.manu.core.R;
 import com.manu.core.http.OkHttp3Downloader;
 import com.manu.core.http.RetrofitClient;
-import com.manu.core.image.transformation.CircleTransformation;
-import com.manu.core.image.transformation.RoundTransformation;
+import com.manu.core.image.picasso.transformation.CircleTransformation;
+import com.manu.core.image.picasso.transformation.RoundTransformation;
 import com.manu.core.utils.LogUtil;
 import com.squareup.picasso.Picasso;
 

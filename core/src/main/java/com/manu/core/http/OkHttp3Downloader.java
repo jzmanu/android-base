@@ -15,6 +15,7 @@ import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class OkHttp3Downloader implements Downloader {
@@ -140,6 +141,7 @@ public class OkHttp3Downloader implements Downloader {
         ResponseBody responseBody = response.body();
         return new Response(responseBody.byteStream(), fromCache, responseBody.contentLength());
     }
+
 
     @Override
     public void shutdown() {

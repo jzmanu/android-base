@@ -1,4 +1,4 @@
-package com.manu.core.image.transformation;
+package com.manu.core.image.picasso.transformation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
